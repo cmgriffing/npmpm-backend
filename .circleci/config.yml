@@ -1,0 +1,39 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.0
+  aws-cli: circleci/aws-cli@2.0.6
+
+jobs:
+  deploy_staging:
+    executor:
+      name: node/default
+      tag: "14.17"
+    steps:
+      - checkout
+      - node/install-packages
+      - aws-cli/setup
+      - run:
+          command: npm run deploy:staging
+  deploy_prod:
+    executor:
+      name: node/default
+      tag: "14.17"
+    steps:
+      - checkout
+      - node/install-packages
+      - aws-cli/setup
+      - run:
+          command: npm run deploy:prod
+
+workflows:
+  deploy:
+    jobs:
+      - deploy_staging:
+          filters:
+            branches:
+              only: staging
+      - deploy_prod:
+          filters:
+            branches:
+              only: prod

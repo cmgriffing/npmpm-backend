@@ -1,0 +1,11 @@
+{
+  "strict": true,
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true
+  },
+  "paths": {
+    "@shared/*": ["./src/shared/*"]
+  }
+}

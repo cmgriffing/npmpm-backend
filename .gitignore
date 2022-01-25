@@ -1,0 +1,17 @@
+node_modules
+**/*.js
+**/*.js.map
+*.env
+**/*.LICENSE.txt
+!webpack.config.js
+!scripts/*.js
+schema
+request-schemas.*
+response-schemas.*
+openapi.yml
+app.bak.arc
+app.arc
+src/shared/email-templates/email-templates.ts
+preferences.arc
+sam.json
+sam.yaml
