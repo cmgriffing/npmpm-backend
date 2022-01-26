@@ -5,21 +5,22 @@ import {
   getUser,
   attachCommonHeaders,
   commonHeaders,
+  HttpRequestWithUser,
 } from "./node_modules/@architect/shared/middleware";
-import { Route } from "./node_modules/@architect/shared/types";
+import { Route, Tables, Word } from "./node_modules/@architect/shared/types";
+import { DBKeys } from "./node_modules/@architect/shared/data";
 
 class Handler {
   @Route({
     summary: "",
     description: "",
-    path: "/",
-    tags: [""],
+    path: "/users/self",
+    tags: ["users"],
     headers: {
       ...commonHeaders,
     },
-    method: "POST",
-    requestJsonSchemaPath: "postUserRequestSchema.json",
-    responseJsonSchemaPath: "postUserResponseSchema.json",
+    method: "GET",
+    responseJsonSchemaPath: "emptyResponseSchema.json",
     errorJsonSchemaPath: "errorResponseSchema.json",
     definedErrors: [
       // HTTPStatusCode.BadRequest,
@@ -31,11 +32,28 @@ class Handler {
     return arc.http.async(
       getTables,
       getUser,
-      async function http(req): Promise<HttpResponse> {
+      async function http(req: HttpRequestWithUser): Promise<HttpResponse> {
         try {
+          const { userId } = req.user;
+
+          const wordsTable = req.tables.get<Word>(Tables.Words);
+
+          const words = await wordsTable.getAllById(
+            { userId },
+            {},
+            DBKeys.Partition
+          );
+
+          const score = words.reduce(
+            (total, word) => total + (word.score || 0),
+            0
+          );
+
+          console.log({ score });
+
           return attachCommonHeaders({
             statusCode: 200,
-            json: {},
+            json: { score },
           });
         } catch (e) {
           console.log("Unhandled Error: ");

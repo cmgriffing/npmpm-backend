@@ -125,6 +125,7 @@ class Handler {
             tertiaryKey,
             userId,
             word,
+            score,
             createdAt: now,
             modifiedAt: now,
           });

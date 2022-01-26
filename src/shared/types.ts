@@ -21,13 +21,14 @@ export interface DatastoreRecord {
 
 export interface User extends DatastoreRecord {
   userId: string;
-  name: string;
-  email: string;
+  // name: string;
+  // email: string;
 }
 
 export interface Word extends DatastoreRecord {
   userId: string;
   word: string;
+  score: number;
 }
 
 export interface TableTypes {

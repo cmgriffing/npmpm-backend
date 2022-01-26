@@ -18,7 +18,8 @@ class Handler {
       ...commonHeaders,
     },
     method: "POST",
-    responseJsonSchemaPath: "emptyResponseSchema.json",
+    requestJsonSchemaPath: "postUserRequestSchema.json",
+    responseJsonSchemaPath: "postUserResponseSchema.json",
     errorJsonSchemaPath: "errorResponseSchema.json",
     definedErrors: [
       // HTTPStatusCode.BadRequest,
