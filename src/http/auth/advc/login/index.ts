@@ -34,8 +34,8 @@ const ADVC_REQUEST_ENDPOINT = `https://beta.did.msidentity.com/v1.0/${ADVC_TENAN
 
 const ADVC_SERVICE_SCOPE = "bbb94529-53a3-4be5-a069-7eaf2712b826/.default";
 
-const BASE_URL = "https://b2012161c66c.ngrok.io";
-// const BASE_URL = "https://yzs3zsa9n7.execute-api.us-west-2.amazonaws.com"
+// const BASE_URL = "https://b2012161c66c.ngrok.io";
+const BASE_URL = "https://yzs3zsa9n7.execute-api.us-west-2.amazonaws.com";
 
 const purpose = "So that you can play NPMPM";
 
