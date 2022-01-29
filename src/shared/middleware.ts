@@ -47,17 +47,17 @@ export const getUser = async function (
   req: HttpRequestWithTables,
   context: any
 ): Promise<HttpResponse | void> {
-  (req as HttpRequestWithUser).user = {
-    partitionKey: "",
-    sortKey: "",
-    userId: "foo",
-    provider: AuthProviders.ADVC,
-    providerId: "foo",
-    createdAt: Date.now(),
-    modifiedAt: Date.now(),
-  };
+  // (req as HttpRequestWithUser).user = {
+  //   partitionKey: "",
+  //   sortKey: "",
+  //   userId: "foo",
+  //   provider: AuthProviders.ADVC,
+  //   providerId: "foo",
+  //   createdAt: Date.now(),
+  //   modifiedAt: Date.now(),
+  // };
 
-  return;
+  // return;
 
   const token = req.headers.authorization.substring("Bearer ".length);
 
