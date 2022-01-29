@@ -43,11 +43,11 @@ class Handler {
   static get() {
     return arc.http.async(
       getTables,
-      // getUser,
+      getUser,
       isValidRequest(postWordRequestSchema),
       async function http(req: HttpRequestWithUser): Promise<HttpResponse> {
         try {
-          const { userId } = req.user || { userId: "foo" };
+          const { userId } = req.user;
           let { word } = req.body;
           word = word.toLowerCase();
 
@@ -101,6 +101,7 @@ class Handler {
           // update user score (scoring values not set in stone yet)
           const wordsTable = req.tables.get<Word>(Tables.Words);
 
+          console.log({ userId, word });
           // if user has already submit word send 420 enhance calm
           if (await wordsTable.getById({ userId, word }, DBKeys.Tertiary)) {
             return attachCommonHeaders({
