@@ -42,7 +42,6 @@ class Handler {
   static get() {
     return arc.http.async(
       getTables,
-      getUser,
       isValidRequest(advcCallbackRequestSchema),
       async function http(req: HttpRequestWithTables): Promise<HttpResponse> {
         try {
