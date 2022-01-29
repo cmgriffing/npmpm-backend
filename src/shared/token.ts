@@ -3,11 +3,12 @@ import { User } from "./types";
 const TOKEN_SIGNING_KEY = "TOTALLY SECRET MAAAAAN";
 
 export function decodeToken(token: string) {
+  console.log({ token });
   return jwt.verify(token, TOKEN_SIGNING_KEY);
 }
 
 function encodeToken(user: User, type: "access" | "refresh") {
-  let expiresIn = "24h";
+  let expiresIn = "365d";
   if (type === "refresh") {
     expiresIn = "7d";
   }
@@ -18,7 +19,9 @@ function encodeToken(user: User, type: "access" | "refresh") {
       type,
     },
     TOKEN_SIGNING_KEY,
-    { expiresIn }
+    {
+      // expiresIn
+    }
   );
 }
 

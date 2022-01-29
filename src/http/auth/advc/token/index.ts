@@ -31,7 +31,7 @@ class Handler {
     },
     method: "POST",
     requestJsonSchemaPath: "advcTokenRequestSchema.json",
-    responseJsonSchemaPath: "postUserResponseSchema.json",
+    responseJsonSchemaPath: "advcTokenResponseSchema.json",
     errorJsonSchemaPath: "errorResponseSchema.json",
     definedErrors: [400, 403, 404, 500],
   })

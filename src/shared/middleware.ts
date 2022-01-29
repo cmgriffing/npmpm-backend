@@ -59,6 +59,13 @@ export const getUser = async function (
 
   // return;
 
+  if (!req.headers.authorization) {
+    return attachCommonHeaders({
+      statusCode: 401,
+      json: {},
+    });
+  }
+
   const token = req.headers.authorization.substring("Bearer ".length);
 
   try {

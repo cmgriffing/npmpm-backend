@@ -20,6 +20,8 @@ import { advcCallbackRequestSchema } from "./node_modules/@architect/shared/requ
 import { getTableMeta, DBKeys } from "./node_modules/@architect/shared/data";
 import { nanoid } from "./node_modules/@architect/shared/nanoid";
 
+const { ADVC_API_KEY } = process.env;
+
 class Handler {
   @Route({
     summary: "",
@@ -59,6 +61,13 @@ class Handler {
             Tables.AdvcAttempts,
             "advc"
           );
+
+          if (req.headers["api-key"] !== ADVC_API_KEY) {
+            return attachCommonHeaders({
+              statusCode: 500,
+              json: {},
+            });
+          }
 
           const now = Date.now();
 

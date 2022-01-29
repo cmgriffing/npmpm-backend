@@ -10,6 +10,10 @@
   method post
   src src/http/auth/advc/token
 
+/oauth/:provider/callback
+  method post
+  src src/http/auth/oauth/callback
+
 /*
   method options
   src src/http/options
