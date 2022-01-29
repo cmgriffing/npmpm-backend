@@ -8,12 +8,7 @@ import {
   commonHeaders,
   HttpRequestWithUser,
 } from "./node_modules/@architect/shared/middleware";
-import {
-  Route,
-  Word,
-  DictionaryResult,
-  Tables,
-} from "./node_modules/@architect/shared/types";
+import { Route, Word, Tables } from "./node_modules/@architect/shared/types";
 import { postWordRequestSchema } from "./node_modules/@architect/shared/request-schemas";
 import axios from "axios";
 import { DBKeys, getTableMeta } from "./node_modules/@architect/shared/data";

@@ -1,4 +1,8 @@
 // DUPLICATED FROM types.ts
+export enum AdvcCallbackStatusCode {
+  RequestRetrieved = "request_retrieved",
+  PresentationVerified = "presentation_verified",
+}
 // END DUPLICATES
 
 export interface PostWordRequest {
@@ -12,15 +16,17 @@ export interface PostWordRequest {
   word: string;
 }
 
-// export interface PostMealRequest {
-//   name: string;
-//   pollId?: string;
-//   unsplashImageData?: {
-//     thumbUrl: string;
-//     imageUrl: string;
-//     author: string;
-//     authorUrl: string;
-//   };
-// }
+export interface AdvcCallbackRequest {
+  requestId: string;
+  state: string;
+  code?: AdvcCallbackStatusCode;
+  issuers?: {
+    claims: { [key: string]: string | number };
+  }[];
+  subject?: string;
+  receipt?: string;
+}
 
-// export type UpdateMealRequest = Omit<Partial<PostMealRequest>, "pollId">;
+export interface AdvcTokenRequest {
+  state: string;
+}

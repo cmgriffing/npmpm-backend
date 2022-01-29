@@ -179,8 +179,8 @@ export function createDataWrapper<T>(
     },
     async scanIdsByFilter(options?: GetAllOptions, index = DBKeys.Partition) {
       const query: any = {
-        ExpressionAttributeNames: {},
-        ExpressionAttributeValues: {},
+        // ExpressionAttributeNames: {},
+        // ExpressionAttributeValues: {},
       };
 
       if (options?.filterExpression) {
@@ -367,8 +367,8 @@ const tableMeta: TableMetaMap = {
     [DBKeys.Partition]: escapedKeyMethod(({ userId }) => {
       return `#USERS#USER_ID#${userId}`;
     }),
-    [DBKeys.Sort]: escapedKeyMethod(({ email }) => {
-      return `#USERS#EMAIL_ID#${email}`;
+    [DBKeys.Sort]: escapedKeyMethod(({ provider, providerId }) => {
+      return `#USERS#PROVIDER#${provider}#PROVIDER_ID#${providerId}`;
     }),
   },
   [Tables.Words]: {
@@ -380,6 +380,22 @@ const tableMeta: TableMetaMap = {
     }),
     [DBKeys.Tertiary]: escapedKeyMethod(({ userId, word }) => {
       return `#WORDS#USER_ID#${userId}#WORD#${word}`;
+    }),
+  },
+  [Tables.HighScores]: {
+    [DBKeys.Partition]: escapedKeyMethod((values) => {
+      return `#HIGH_SCORES`;
+    }),
+    [DBKeys.Sort]: escapedKeyMethod(({ scoreType }) => {
+      return `#HIGH_SCORES#SCORE_TYPE#${scoreType}`;
+    }),
+  },
+  [Tables.AdvcAttempts]: {
+    [DBKeys.Partition]: escapedKeyMethod(({ state }) => {
+      return `#ADVC_ATTEMPTS#STATE#${state}`;
+    }),
+    [DBKeys.Sort]: escapedKeyMethod(({ state }) => {
+      return `#ADVC_ATTEMPTS#STATE#${state}`;
     }),
   },
 };

@@ -9,6 +9,11 @@ core
   partitionKey *String
   sortKey **String
 
+advc
+  partitionKey *String
+  sortKey **String
+  expires 3600
+
 @tables-indexes
 core
   sortKey *String

@@ -5,11 +5,18 @@ import {
 } from "./http-status";
 
 // DUPLICATED IN request-types.ts
+export enum AdvcCallbackStatusCode {
+  Uninitiated = "uninitiated",
+  RequestRetrieved = "request_retrieved",
+  PresentationVerified = "presentation_verified",
+}
 // END DUPLICATES
 
 export enum Tables {
   Users = "users",
   Words = "words",
+  HighScores = "highScores",
+  AdvcAttempts = "advcAttempts",
 }
 
 export interface DatastoreRecord {
@@ -21,8 +28,8 @@ export interface DatastoreRecord {
 
 export interface User extends DatastoreRecord {
   userId: string;
-  // name: string;
-  // email: string;
+  provider: AuthProviders;
+  providerId: string;
 }
 
 export interface Word extends DatastoreRecord {
@@ -31,9 +38,23 @@ export interface Word extends DatastoreRecord {
   score: number;
 }
 
+export interface HighScoreList extends DatastoreRecord {
+  scoreType: string;
+  words: {
+    word: string;
+    count: number;
+  }[];
+}
+
+export enum ScoreType {
+  Available = "available",
+  Unavailable = "unavailable",
+}
+
 export interface TableTypes {
   [Tables.Users]: User;
   [Tables.Words]: Word;
+  [Tables.AdvcAttempts]: AdvcAttempt;
 }
 
 export interface RouteOptions {
@@ -57,20 +78,15 @@ export function Route(options: RouteOptions): Function {
   };
 }
 
-export interface DictionaryResult {
-  word: string;
-  phonetic: string;
-  phonetics: {
-    text: string;
-    audio: string;
-  }[];
-  origin: string;
-  meanings: {
-    partOfSpeech: string; //"noun", "verb", "adjective", "adverb"
-    definitions: {
-      definition: string;
-      synonyms: string[];
-      antonyms: string[];
-    }[];
-  }[];
+export interface AdvcAttempt extends DatastoreRecord {
+  state: string;
+  code: AdvcCallbackStatusCode;
+  advcUserId?: string;
+}
+
+export enum AuthProviders {
+  ADVC = "advc",
+  Github = "github",
+  Twitter = "twitter",
+  Twitch = "twitch",
 }

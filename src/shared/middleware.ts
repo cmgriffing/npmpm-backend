@@ -16,12 +16,12 @@ import {
 } from "./data";
 import { nanoid } from "./nanoid";
 import { decodeToken } from "./token";
-import { Tables, User } from "./types";
+import { AdvcAttempt, AuthProviders, Tables, User } from "./types";
 
 export interface TableDatastores {}
 
 export interface HttpRequestWithTables extends HttpRequest {
-  tables: { get: <T>(tableName: string) => WrappedDatastore<T> };
+  tables: { get: <T>(prop: Tables, tableName?: string) => WrappedDatastore<T> };
 }
 
 export interface HttpRequestWithUser extends HttpRequestWithTables {
@@ -51,6 +51,8 @@ export const getUser = async function (
     partitionKey: "",
     sortKey: "",
     userId: "foo",
+    provider: AuthProviders.ADVC,
+    providerId: "foo",
     createdAt: Date.now(),
     modifiedAt: Date.now(),
   };
@@ -109,7 +111,12 @@ export const logDatabase = async function (
       .get<User>(Tables.Users)
       .GET_EVERYTHING();
 
+    const other = await req.tables
+      .get<AdvcAttempt>(Tables.AdvcAttempts, "advc")
+      .GET_EVERYTHING();
+
     console.log("EVERYTHING", JSON.stringify(everything, null, 2));
+    console.log("OTHER", JSON.stringify(other, null, 2));
   } catch (e) {
     console.log("Error logging EVERYTHING");
     console.log(e);
