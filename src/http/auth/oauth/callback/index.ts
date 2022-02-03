@@ -16,20 +16,22 @@ import { DBKeys, getTableMeta } from "./node_modules/@architect/shared/data";
 import { encodeAccessToken } from "./node_modules/@architect/shared/token";
 import { nanoid } from "./node_modules/@architect/shared/nanoid";
 
-const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_CALLBACK_URL } =
-  process.env;
+const {
+  GITHUB_CLIENT_ID,
+  GITHUB_CLIENT_SECRET,
+  GITHUB_CALLBACK_URL,
+  TWITCH_CLIENT_ID,
+  TWITCH_CLIENT_SECRET,
+  TWITCH_CALLBACK_URL,
+} = process.env;
 
 const providerDetails: {
   [key: string]: {
-    providerUrl: string;
-    userDetailsUrl: string;
     getUserDetails: Function;
-    getPayload: Function;
+    makeVerificationRequest: Function;
   };
 } = {
   github: {
-    providerUrl: "https://github.com/login/oauth/access_token",
-    userDetailsUrl: "https://api.github.com/user",
     getUserDetails(accessToken: string) {
       return axios.get("https://api.github.com/user", {
         headers: {
@@ -37,13 +39,33 @@ const providerDetails: {
         },
       });
     },
-    getPayload({ code }: any) {
-      return {
-        client_id: GITHUB_CLIENT_ID,
-        client_secret: GITHUB_CLIENT_SECRET,
-        redirect_uri: GITHUB_CALLBACK_URL,
-        code,
-      };
+    makeVerificationRequest(code: string) {
+      return axios.post(
+        "https://github.com/login/oauth/access_token",
+        {
+          client_id: GITHUB_CLIENT_ID,
+          client_secret: GITHUB_CLIENT_SECRET,
+          redirect_uri: GITHUB_CALLBACK_URL,
+          code,
+        },
+        {
+          headers: { Accept: "application/json" },
+        }
+      );
+    },
+  },
+  twitch: {
+    getUserDetails(accessToken: string) {
+      return axios.get("https://api.twitch.tv/helix/users", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    },
+    makeVerificationRequest(code: string) {
+      return axios.post(
+        `https://id.twitch.tv/oauth2/token?client_id=${TWITCH_CLIENT_ID}&client_secret=${TWITCH_CLIENT_SECRET}&code=${code}&grant_type=authorization_code&redirect_uri=${TWITCH_CALLBACK_URL}`
+      );
     },
   },
 };
@@ -83,10 +105,8 @@ class Handler {
             });
           }
 
-          const { providerUrl, getPayload, getUserDetails } =
+          const { getUserDetails, makeVerificationRequest } =
             providerDetails[provider];
-
-          const payload = getPayload({ code });
 
           const defaultResponse = {
             access_token: "",
@@ -94,18 +114,10 @@ class Handler {
             token_type: "",
           };
 
-          const verificationResponse = await axios
-            .post(providerUrl, payload, {
-              headers: { Accept: "application/json" },
-            })
-            .catch((error) => {
-              console.log("OAuth error: ", error);
-              return { data: defaultResponse };
-            });
+          const verificationResponse = await makeVerificationRequest(code);
 
           if (!verificationResponse?.data?.access_token) {
             console.log("Error verifying code", {
-              redirect_uri: GITHUB_CALLBACK_URL,
               code,
               provider,
               data: verificationResponse?.data,
@@ -128,7 +140,6 @@ class Handler {
 
           if (!verificationResponse?.data?.access_token) {
             console.log("Error verifying code", {
-              payload,
               code,
               provider,
               data: providerUserResponse?.data,

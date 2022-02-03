@@ -81,6 +81,7 @@ export function Route(options: RouteOptions): Function {
 export interface AdvcAttempt extends DatastoreRecord {
   state: string;
   code: AdvcCallbackStatusCode;
+  TTL: number;
   advcUserId?: string;
 }
 

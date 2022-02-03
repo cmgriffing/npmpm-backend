@@ -12,7 +12,7 @@ core
 advc
   partitionKey *String
   sortKey **String
-  expires 3600
+  expires TTL
 
 @tables-indexes
 core

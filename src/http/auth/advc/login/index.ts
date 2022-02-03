@@ -26,6 +26,7 @@ const {
   ADVC_CREDENTIAL_URL,
   ADVC_API_KEY,
   ADVC_ISSUER_DID,
+  BASE_URL,
 } = process.env;
 
 const ADVC_AUTHORITY = `https://login.microsoftonline.com`;
@@ -35,7 +36,7 @@ const ADVC_REQUEST_ENDPOINT = `https://beta.did.msidentity.com/v1.0/${ADVC_TENAN
 const ADVC_SERVICE_SCOPE = "bbb94529-53a3-4be5-a069-7eaf2712b826/.default";
 
 // const BASE_URL = "https://4093c31f4f73.ngrok.io";
-const BASE_URL = "https://yzs3zsa9n7.execute-api.us-west-2.amazonaws.com";
+// const BASE_URL = "https://yzs3zsa9n7.execute-api.us-west-2.amazonaws.com";
 
 const purpose = "So that you can play NPMPM";
 
@@ -137,6 +138,7 @@ class Handler {
             state,
             createdAt: now,
             modifiedAt: now,
+            TTL: now + 3600000,
           });
 
           console.log({ createdRow });
