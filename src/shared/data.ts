@@ -82,13 +82,15 @@ export interface WrappedDatastore<T> {
     idValue: QueryKeys,
     options?: GetAllOptions,
     index?: DBKeys,
-    secondaryId?: string
+    secondaryId?: QueryKeys,
+    secondaryIndex?: DBKeys
   ) => Promise<T[]>;
   getAllByManyIds: (
     idValues: string[],
     idKey: string,
     index?: DBKeys,
-    secondaryId?: string
+    secondaryId?: QueryKeys,
+    secondaryIndex?: DBKeys
   ) => Promise<T[]>;
   update: (
     idValue: QueryKeys,
@@ -212,7 +214,9 @@ export function createDataWrapper<T>(
     async getAllById(
       idValue: QueryKeys,
       options?: GetAllOptions,
-      index = DBKeys.Partition
+      index = DBKeys.Partition,
+      secondaryId?: QueryKeys,
+      secondaryIndex = DBKeys.Partition
     ) {
       index = jsStringEscape(index);
       idValue = escapeQueryKeys(idValue);
@@ -227,6 +231,13 @@ export function createDataWrapper<T>(
           [`:${index}`]: key,
         },
       };
+
+      if (secondaryId) {
+        const secondaryKey = tableKeyMethods[secondaryIndex](secondaryId);
+        query.KeyConditionExpression = `${query.KeyConditionExpression} AND #${secondaryIndex} = :${secondaryIndex}`;
+        query.ExpressionAttributeNames[`#${secondaryIndex}`] = secondaryIndex;
+        query.ExpressionAttributeValues[`:${secondaryIndex}`] = secondaryKey;
+      }
 
       if (options?.filterExpression) {
         query.FilterExpression = options?.filterExpression;
@@ -312,7 +323,9 @@ export function createDataWrapper<T>(
     async getAllByManyIds(
       idValues: string[],
       idKey: string,
-      index = DBKeys.Partition
+      index = DBKeys.Partition,
+      secondaryId?: QueryKeys,
+      secondaryIndex = DBKeys.Partition
     ) {
       const options: { index?: DBKeys } = { index: undefined };
       if (index !== DBKeys.Partition) {
@@ -320,7 +333,13 @@ export function createDataWrapper<T>(
       }
       const itemsGroupedByKey = await Promise.all(
         idValues.map((idValue) => {
-          return this.getAllById({ [idKey]: idValue }, options, index);
+          return this.getAllById(
+            { [idKey]: idValue },
+            options,
+            index,
+            secondaryId,
+            secondaryIndex
+          );
         })
       );
 

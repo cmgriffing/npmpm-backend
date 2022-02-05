@@ -5,7 +5,7 @@ import {
   getUser,
   attachCommonHeaders,
   commonHeaders,
-  HttpRequestWithTables,
+  HttpRequestWithUser,
 } from "./node_modules/@architect/shared/middleware";
 import {
   Route,
@@ -20,6 +20,11 @@ import {
   getTableMeta,
   WrappedDatastore,
 } from "./node_modules/@architect/shared/data";
+
+interface WordScore {
+  word: string;
+  count: number;
+}
 
 class Handler {
   @Route({
@@ -43,10 +48,11 @@ class Handler {
     return arc.http.async(
       getTables,
       getUser,
-      async function http(req: HttpRequestWithTables): Promise<HttpResponse> {
+      async function http(req: HttpRequestWithUser): Promise<HttpResponse> {
         try {
           const now = Date.now();
           const cacheTimeout = 3600000;
+          const { userId } = req.user;
 
           const wordsTable = req.tables.get<Word>(Tables.Words);
           const highScoresTable = req.tables.get<HighScoreList>(
@@ -77,7 +83,7 @@ class Handler {
           if (!rawAvailableScores || !rawUnavailableScores) {
             // create scores
 
-            const { availableScores, unavailableScores } = await aggregateWords(
+            let { availableScores, unavailableScores } = await aggregateWords(
               wordsTable
             );
 
@@ -99,6 +105,16 @@ class Handler {
                 modifiedAt: now,
               }),
             ]);
+
+            const scrubbedScores = await scrubUnguessedWords(
+              wordsTable,
+              userId,
+              availableScores,
+              unavailableScores
+            );
+
+            availableScores = scrubbedScores.availableScores;
+            unavailableScores = scrubbedScores.unavailableScores;
 
             return attachCommonHeaders({
               statusCode: 200,
@@ -130,6 +146,16 @@ class Handler {
               ),
             ]);
           }
+
+          const scrubbedScores = await scrubUnguessedWords(
+            wordsTable,
+            userId,
+            availableScores,
+            unavailableScores
+          );
+
+          availableScores = scrubbedScores.availableScores;
+          unavailableScores = scrubbedScores.unavailableScores;
 
           return attachCommonHeaders({
             statusCode: 200,
@@ -180,6 +206,68 @@ async function aggregateWords(wordsTable: WrappedDatastore<Word>) {
 
   const availableScores = getHighScoresFromMap(availableScoresMap);
   const unavailableScores = getHighScoresFromMap(unavailableScoresMap);
+
+  return { availableScores, unavailableScores };
+}
+
+async function scrubUnguessedWords(
+  wordsTable: WrappedDatastore<Word>,
+  userId: string,
+  availableScores: WordScore[],
+  unavailableScores: WordScore[]
+) {
+  const availableWords = availableScores.map((score) => score.word);
+  const unavailableWords = unavailableScores.map((score) => score.word);
+
+  const [userAvailableWords, userUnavailableWords] = await Promise.all([
+    wordsTable.getAllByManyIds(
+      availableWords,
+      "word",
+      DBKeys.Sort,
+      { userId },
+      DBKeys.Partition
+    ),
+    wordsTable.getAllByManyIds(
+      unavailableWords,
+      "word",
+      DBKeys.Sort,
+      { userId },
+      DBKeys.Partition
+    ),
+  ]);
+
+  console.log({ userAvailableWords });
+
+  const guessedWords: { [key: string]: true } = {};
+
+  userAvailableWords.forEach((wordResult) => {
+    guessedWords[wordResult.word] = true;
+  });
+  userUnavailableWords.forEach((wordResult) => {
+    guessedWords[wordResult.word] = true;
+  });
+
+  availableScores = availableScores.map((score) => {
+    if (!guessedWords[score.word]) {
+      return {
+        word: "*****",
+        count: score.count,
+      };
+    } else {
+      return score;
+    }
+  });
+
+  unavailableScores = unavailableScores.map((score) => {
+    if (!guessedWords[score.word]) {
+      return {
+        word: "*****",
+        count: score.count,
+      };
+    } else {
+      return score;
+    }
+  });
 
   return { availableScores, unavailableScores };
 }

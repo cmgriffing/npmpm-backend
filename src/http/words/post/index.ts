@@ -89,11 +89,34 @@ class Handler {
           }
 
           let score = 0;
+          let repo: {
+            name: string;
+            description: string;
+            url: string;
+            version: string;
+            lastUpdated: string;
+          };
 
           if (npmResults?.data.total === 0) {
             score = 2;
           } else if (npmResults.data.results[0].searchScore >= 100000) {
+            const {
+              package: {
+                name,
+                description,
+                version,
+                links: { npm: url },
+                date: lastUpdated,
+              },
+            } = npmResults.data.results[0];
             score = 0;
+            repo = {
+              name,
+              description,
+              version,
+              url,
+              lastUpdated,
+            };
           } else {
             score = 1;
           }
@@ -128,7 +151,7 @@ class Handler {
 
           return attachCommonHeaders({
             statusCode: 200,
-            json: { score },
+            json: { score, repo },
           });
         } catch (e) {
           console.log("Unhandled Error: ");
