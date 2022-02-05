@@ -56,11 +56,18 @@ const providerDetails: {
   },
   twitch: {
     getUserDetails(accessToken: string) {
-      return axios.get("https://api.twitch.tv/helix/users", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      return axios
+        .get("https://api.twitch.tv/helix/users", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Client-ID": TWITCH_CLIENT_ID,
+          },
+        })
+        .then((result) => {
+          return {
+            data: result.data.data[0],
+          };
+        });
     },
     makeVerificationRequest(code: string) {
       return axios.post(
